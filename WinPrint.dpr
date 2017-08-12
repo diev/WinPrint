@@ -6,7 +6,11 @@ program WinPrint;
 
 uses
   System.SysUtils,
-  UsageUnit in 'UsageUnit.pas';
+  UsageUnit in 'UsageUnit.pas',
+  PrintUnit in 'PrintUnit.pas';
+
+var
+  FileName: string;
 
 begin
   try
@@ -16,6 +20,10 @@ begin
        FindCmdLineSwitch('h') or
        FindCmdLineSwitch('help') then
       Usage();
+
+    FileName := ParamStr(1);
+    LoadLines(FileName);
+    PrintLines;
 
   except
     on E: Exception do
