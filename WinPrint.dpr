@@ -24,7 +24,7 @@ begin
     FileName := ParamStr(1);
     LoadLines(FileName);
     PrintLines;
-
+    Readln;
   except
     on E: Exception do
       Writeln(E.ClassName, ': ', E.Message);
