@@ -6,6 +6,7 @@ program WinPrint;
 
 uses
   System.SysUtils,
+  Vcl.Printers,
   UsageUnit in 'UsageUnit.pas',
   PrintUnit in 'PrintUnit.pas';
 
@@ -21,10 +22,19 @@ begin
        FindCmdLineSwitch('help') then
       Usage();
 
+    if Printer.Printers.Count = 0 then
+      Usage(1, 'Нет установленных принтеров!');
+
+    if (ParamCount = 2) then
+      SelectPrinter(ParamStr(2));
+
     FileName := ParamStr(1);
+    if not FileExists(FileName) then
+      Usage(2, 'Нет такого файла %s', [FileName]);
+
     LoadLines(FileName);
     PrintLines;
-    Readln;
+
   except
     on E: Exception do
       Writeln(E.ClassName, ': ', E.Message);

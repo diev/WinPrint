@@ -5,55 +5,93 @@ interface
 uses
   System.Classes;
 
-procedure LoadLines(const FileName: string; const Enc: Integer = 866);
+procedure LoadLines(const S: string; const Enc: Integer = 866);
 procedure PrintLines;
-function TryGetKA(const S: string; out KA: string): Boolean;
 
 implementation
 
 uses
   System.SysUtils,
-  System.RegularExpressions;
+  System.RegularExpressions,
+  Vcl.Printers;
 
 const
   FontSize: Integer = 10;
-  TopMargin: Integer = 4;
+
+  TopMargin: Integer = 3;
+  BottomMargin: Integer = 4;
+
   LeftMargin: Integer = 8;
+  RightMargin: Integer = 3;
 
 var
+  FileName: string;
   Lines: TStrings;
-  TotalWidth: Integer = 80;
+  LineHeight, CharWidth, LinesHeight, MaxChars: Integer;
+  TopY, LineY, LeftX: Integer;
 
-procedure LoadLines(const FileName: string; const Enc: Integer = 866);
+procedure SetCanvas;
 begin
-  Lines := TStringList.Create;
-  Lines.LoadFromFile(FileName, TEncoding.GetEncoding(Enc));
+  with Printer do
+  begin
+    // Orientation := poLandscape;
+    Orientation := poPortrait;
+    Title := Format('WinPrint - %s', [FileName]);
+    BeginDoc;
+
+    // canvas settings
+    Canvas.Font.Name := 'Courier New';
+    Canvas.Font.Charset := 204; //RUSSIAN_CHARSET;
+    Canvas.Font.Size := FontSize;
+
+    // calculations
+    LineHeight := Canvas.TextHeight('W');
+    CharWidth := Canvas.TextWidth('W');
+
+    LinesHeight := PageHeight - BottomMargin * LineHeight;
+    MaxChars := Trunc(PageWidth / CharWidth) - LeftMargin - RightMargin;
+
+    TopY := TopMargin * LineHeight;
+    LeftX := LeftMargin * CharWidth;
+
+    // move to the first line
+    LineY := TopY;
+  end;
 end;
 
 procedure PrintLine(const S: string);
 var
-  I, LineWidth: Integer;
+  I: Integer;
 begin
-  for I := 1 to LeftMargin do
-    Write(' ');
-  LineWidth := TotalWidth - LeftMargin;
-  if S.Length > LineWidth then
+  // check if a new page required
+  with Printer do
   begin
-    //I := S.LastIndexOfAny([' ', ',', ';', ':', '-'], 0, LineWidth);
-    I := S.Substring(0, LineWidth).LastDelimiter(' ');
-    if I > -1 then
+    // LineY := Canvas.PenPos.Y;
+    if LineY > LinesHeight then
     begin
-      Writeln(S.Substring(0, I).TrimRight);
+      NewPage;
+      LineY := TopY;
+    end;
+
+    if S.Length > MaxChars then
+    begin
+      // I := S.LastIndexOfAny([' ', ',', ';', ':', '-'], 0, MaxChars);
+      I := S.Substring(0, MaxChars).LastDelimiter(' ');
+      if I = -1 then
+        I := MaxChars;
+      Canvas.TextOut(LeftX, LineY, S.Substring(0, I).TrimRight);
+      // move to next line
+      Inc(LineY, LineHeight);
+      // print the remainder recursively
       PrintLine(S.Substring(I).TrimLeft);
     end
     else
     begin
-      Writeln(S.Substring(0, LineWidth));
-      PrintLine(S.Substring(LineWidth).TrimLeft);
+      Canvas.TextOut(LeftX, LineY, S);
+      // move to next line
+      Inc(LineY, LineHeight);
     end;
-  end
-  else
-    Writeln(S);
+  end;
 end;
 
 procedure PrintLines;
@@ -61,7 +99,19 @@ var
   I: Integer;
   S, KA: string;
   Sign: Boolean;
+
+function TryGetKA(const S: string; out KA: string): Boolean;
+var
+  Res: TMatch;
 begin
+  Res := TRegEx.Match(S, '(\d{12})');
+  Result := res.Success;
+  if Result then
+    KA := Res.Value;
+end;
+
+begin
+  SetCanvas;
   Sign := false;
   for I := 0 to Lines.Count - 1 do
   begin
@@ -76,16 +126,14 @@ begin
     else
       PrintLine(S);
   end;
+  Printer.EndDoc;
 end;
 
-function TryGetKA(const S: string; out KA: string): Boolean;
-var
-  Res: TMatch;
+procedure LoadLines(const S: string; const Enc: Integer = 866);
 begin
-  Res := TRegEx.Match(S, '(\d{12})');
-  Result := res.Success;
-  if Result then
-    KA := Res.Value;
+  FileName := S;
+  Lines := TStringList.Create;
+  Lines.LoadFromFile(FileName, TEncoding.GetEncoding(Enc));
 end;
 
 initialization

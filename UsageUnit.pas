@@ -3,6 +3,7 @@ unit UsageUnit;
 interface
 
 procedure PrintersInfo;
+procedure SelectPrinter(const S: string);
 procedure Usage(const Err: Integer = 0; const Msg: string = ''); overload;
 procedure Usage(const Err: Integer; const Fmt: string; const Args: array of const); overload;
 
@@ -31,6 +32,26 @@ begin
     else
       s := ' ';
     Writeln(Format('%3u%s "%s"', [i, s, Printer.Printers[i]]));
+  end;
+end;
+
+procedure SelectPrinter(const S: string);
+var
+  I: Integer;
+begin
+  if TryStrToInt(S, I) then
+  begin
+    if (I > -1) and (I < Printer.Printers.Count) then
+      Printer.PrinterIndex := I
+    else
+      Usage(3, 'Нет принтера с номером %s', [S]);
+  end
+  else
+  begin
+    I := Printer.Printers.IndexOf(S);
+    if I = -1 then
+      Usage(4, 'Нет принтера с именем (в cp866) "%s"', [S]);
+    Printer.PrinterIndex := I;
   end;
 end;
 
