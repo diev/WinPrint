@@ -8,7 +8,8 @@ uses
   System.SysUtils,
   Vcl.Printers,
   UsageUnit in 'UsageUnit.pas',
-  PrintUnit in 'PrintUnit.pas';
+  PrintUnit in 'PrintUnit.pas',
+  VersionInfoUnit in 'VersionInfoUnit.pas';
 
 resourcestring
   NoInstalledPrinters = 'Нет установленных принтеров!';

@@ -11,10 +11,11 @@ implementation
 
 uses
   System.SysUtils,
-  Vcl.Printers;
+  Vcl.Printers,
+  VersionInfoUnit;
 
 resourcestring
-  Usage1 = 'Windows Print - программа графической печати текстов cp866.';
+  // Usage1 = 'Windows Print - программа графической печати текстов cp866.';
   Usage2 = 'В качестве параметра требует имя файла для печати.';
   Usage3 = 'Вторым параметром может быть указан принтер (номер или имя в cp866).';
 
@@ -65,8 +66,13 @@ begin
 end;
 
 procedure Usage(const Err: Integer = 0; const Msg: string = ''); overload;
+var
+  FVI: TFileVersionInfo;
 begin
-  Writeln(Usage1);
+  FVI := FileVersionInfo(ParamStr(0));
+  Writeln(Format('%s v%s - %s', [FVI.ProductName, FVI.FileVersion, FVI.FileDescription]));
+  Writeln(FVI.LegalCopyRight);
+  Writeln;
   Writeln(Usage2);
   Writeln(Usage3);
   Writeln;
