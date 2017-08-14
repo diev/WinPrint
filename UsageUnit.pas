@@ -18,20 +18,29 @@ resourcestring
   Usage2 = 'В качестве параметра требует имя файла для печати.';
   Usage3 = 'Вторым параметром может быть указан принтер (номер или имя в cp866).';
 
+  ErrorHeading = 'ОШИБКА:';
+  PrintersAvailable = 'Программа видит следующие принтеры (%s - по умолчанию):';
+  PrintersAvailableDefault = '*';
+  PrintersAvailableOthers = ' ';
+  PrintersAvailableFormat = '%3u%s "%s"';
+  NoSuchPrinterNumber = 'Нет принтера с номером %s';
+  NoSuchPrinterName = 'Нет принтера с именем (в cp866) "%s"';
+  PressEnterToExit = 'Нажмите Enter для выхода';
+
 procedure PrintersInfo;
 var
   i: Integer;
   s: string;
 begin
-  Writeln('Программа видит следующие принтеры (* - по умолчанию):');
+  Writeln(Format(PrintersAvailable, [PrintersAvailableDefault]));
   Writeln;
   for i := 0 to Printer.Printers.Count - 1 do
   begin
     if i = Printer.PrinterIndex then
-      s := '*'
+      s := PrintersAvailableDefault
     else
-      s := ' ';
-    Writeln(Format('%3u%s "%s"', [i, s, Printer.Printers[i]]));
+      s := PrintersAvailableOthers;
+    Writeln(Format(PrintersAvailableFormat, [i, s, Printer.Printers[i]]));
   end;
 end;
 
@@ -44,13 +53,13 @@ begin
     if (I > -1) and (I < Printer.Printers.Count) then
       Printer.PrinterIndex := I
     else
-      Usage(3, 'Нет принтера с номером %s', [S]);
+      Usage(3, NoSuchPrinterNumber, [S]);
   end
   else
   begin
     I := Printer.Printers.IndexOf(S);
     if I = -1 then
-      Usage(4, 'Нет принтера с именем (в cp866) "%s"', [S]);
+      Usage(4, NoSuchPrinterName, [S]);
     Printer.PrinterIndex := I;
   end;
 end;
@@ -64,14 +73,14 @@ begin
 
   if Msg.Length > 0 then
   begin
-    Writeln('ОШИБКА:');
+    Writeln(ErrorHeading);
     Writeln(Msg);
   end
   else
     PrintersInfo;
 
   Writeln;
-  Writeln('Нажмите Enter для выхода');
+  Writeln(PressEnterToExit);
   Readln;
   Halt(Err);
 end;

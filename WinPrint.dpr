@@ -10,6 +10,10 @@ uses
   UsageUnit in 'UsageUnit.pas',
   PrintUnit in 'PrintUnit.pas';
 
+resourcestring
+  NoInstalledPrinters = 'Нет установленных принтеров!';
+  NoSuchFile = 'Нет такого файла %s';
+
 var
   FileName: string;
 
@@ -23,14 +27,14 @@ begin
       Usage();
 
     if Printer.Printers.Count = 0 then
-      Usage(1, 'Нет установленных принтеров!');
+      Usage(1, NoInstalledPrinters);
 
     if (ParamCount = 2) then
       SelectPrinter(ParamStr(2));
 
     FileName := ParamStr(1);
     if not FileExists(FileName) then
-      Usage(2, 'Нет такого файла %s', [FileName]);
+      Usage(2, NoSuchFile, [FileName]);
 
     LoadLines(FileName);
     PrintLines;
