@@ -1,5 +1,5 @@
 # WinPrint
-Windows Print - программа графической печати текстов cp866.
+Windows Print - программа графической печати текстов cp866 и XML.
 
 ## Build
 

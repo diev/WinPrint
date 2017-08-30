@@ -13,7 +13,9 @@ implementation
 uses
   System.SysUtils,
   System.RegularExpressions,
-  Vcl.Printers;
+  Vcl.Printers,
+  Xml.XMLDoc,
+  Xml.XMLIntf;
 
 const
   FontSize: Integer = 10;
@@ -61,7 +63,7 @@ end;
 
 procedure PrintLine(const S: string);
 var
-  I: Integer;
+  I, N: Integer;
 begin
   // check if a new page required
   with Printer do
@@ -83,7 +85,10 @@ begin
       // move to next line
       Inc(LineY, LineHeight);
       // print the remainder recursively
-      PrintLine(S.Substring(I).TrimLeft);
+      N := 0;
+      while S.Substring(N, 1) = ' ' do
+        Inc(N);
+      PrintLine(StringOfChar(' ', N) + S.Substring(I).TrimLeft);
     end
     else
     begin
@@ -130,10 +135,35 @@ begin
 end;
 
 procedure LoadLines(const S: string; const Enc: Integer = 866);
+var
+  Doc: IXMLDocument;
+  Txt: string;
 begin
   FileName := S;
   Lines := TStringList.Create;
   Lines.LoadFromFile(FileName, TEncoding.GetEncoding(Enc));
+
+  if Lines[0].StartsWith('<') then //XML
+  begin
+    Lines.Clear;
+    Doc := TXMLDocument.Create(nil);
+    try
+      Doc.LoadFromFile(S);
+      Doc.NodeIndentStr := '  ';
+      Doc.Options := Doc.Options + [doNodeAutoIndent];
+      Txt := Doc.XML.Text;
+    finally
+      Doc := nil;
+    end;
+    Txt := FormatXMLData(Txt);
+    //Txt := StringReplace(Txt, '>', '>' + #13#10, [rfReplaceAll]);
+    Txt := StringReplace(Txt, '&quot;', '"', [rfReplaceAll]);
+    Txt := StringReplace(Txt, '&apos;', '''', [rfReplaceAll]);
+    Txt := StringReplace(Txt, '&amp;', '&', [rfReplaceAll]);
+    Txt := StringReplace(Txt, '&lt;', '<', [rfReplaceAll]);
+    Txt := StringReplace(Txt, '&gt;', '>', [rfReplaceAll]);
+    Lines.Text := Txt;
+  end;
 end;
 
 initialization
