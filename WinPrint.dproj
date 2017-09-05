@@ -5,7 +5,7 @@
         <FrameworkType>None</FrameworkType>
         <MainSource>WinPrint.dpr</MainSource>
         <Base>True</Base>
-        <Config Condition="'$(Config)'==''">Debug</Config>
+        <Config Condition="'$(Config)'==''">Release</Config>
         <Platform Condition="'$(Platform)'==''">Win32</Platform>
         <TargetedPlatforms>1</TargetedPlatforms>
         <AppType>Console</AppType>
@@ -56,7 +56,7 @@
         <VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
         <VerInfo_AutoGenVersion>true</VerInfo_AutoGenVersion>
         <VerInfo_Locale>1049</VerInfo_Locale>
-        <VerInfo_Keys>CompanyName=CIBank;FileDescription=Программа графической печати текстов cp866.;FileVersion=1.0.0.0;InternalName=$(MSBuildProjectName);LegalCopyright=(c) 2010-2017 Dmitrii Evdokimov;LegalTrademarks=;OriginalFilename=$(MSBuildProjectName).exe;ProgramID=com.embarcadero.$(MSBuildProjectName);ProductName=$(MSBuildProjectName);ProductVersion=1.0.0.0;Comments=http://dievdo.ru</VerInfo_Keys>
+        <VerInfo_Keys>CompanyName=CIBank;FileDescription=Программа графической печати текстов cp866.;FileVersion=1.0.0.0;InternalName=$(MSBuildProjectName);LegalCopyright=(c) 2010-2017 Dmitrii Evdokimov;LegalTrademarks=;OriginalFilename=$(MSBuildProjectName).exe;ProgramID=com.embarcadero.$(MSBuildProjectName);ProductName=$(MSBuildProjectName);ProductVersion=1.2.0.0;Comments=http://dievdo.ru</VerInfo_Keys>
         <Manifest_File>(None)</Manifest_File>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_1)'!=''">
@@ -74,8 +74,8 @@
         <VerInfo_PreRelease>true</VerInfo_PreRelease>
         <VerInfo_Locale>1049</VerInfo_Locale>
         <VerInfo_AutoGenVersion>true</VerInfo_AutoGenVersion>
-        <VerInfo_MinorVer>1</VerInfo_MinorVer>
-        <VerInfo_Keys>CompanyName=CIBank;FileDescription=Программа графической печати текстов cp866 и XML.;FileVersion=1.1.0.0;InternalName=$(MSBuildProjectName);LegalCopyright=(c) 2010-2017 Dmitrii Evdokimov;LegalTrademarks=;OriginalFilename=$(MSBuildProjectName).exe;ProgramID=com.embarcadero.$(MSBuildProjectName);ProductName=$(MSBuildProjectName);ProductVersion=1.1.0.0;Comments=http://dievdo.ru</VerInfo_Keys>
+        <VerInfo_MinorVer>2</VerInfo_MinorVer>
+        <VerInfo_Keys>CompanyName=CIBank;FileDescription=Программа графической печати текстов cp866 и XML.;FileVersion=1.2.0.0;InternalName=$(MSBuildProjectName);LegalCopyright=(c) 2010-2017 Dmitrii Evdokimov;LegalTrademarks=;OriginalFilename=$(MSBuildProjectName).exe;ProgramID=com.embarcadero.$(MSBuildProjectName);ProductName=$(MSBuildProjectName);ProductVersion=1.2.0.0;Comments=http://dievdo.ru</VerInfo_Keys>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_2)'!=''">
         <DCC_LocalDebugSymbols>false</DCC_LocalDebugSymbols>
@@ -87,8 +87,8 @@
         <VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
         <VerInfo_AutoGenVersion>true</VerInfo_AutoGenVersion>
         <VerInfo_Locale>1049</VerInfo_Locale>
-        <VerInfo_MinorVer>1</VerInfo_MinorVer>
-        <VerInfo_Keys>CompanyName=CIBank;FileDescription=Программа графической печати текстов cp866 и XML.;FileVersion=1.1.0.0;InternalName=$(MSBuildProjectName);LegalCopyright=(c) 2010-2017 Dmitrii Evdokimov;LegalTrademarks=;OriginalFilename=$(MSBuildProjectName).exe;ProgramID=com.embarcadero.$(MSBuildProjectName);ProductName=$(MSBuildProjectName);ProductVersion=1.1.0.0;Comments=http://dievdo.ru</VerInfo_Keys>
+        <VerInfo_MinorVer>2</VerInfo_MinorVer>
+        <VerInfo_Keys>CompanyName=CIBank;FileDescription=Программа графической печати текстов cp866 и XML.;FileVersion=1.2.0.0;InternalName=$(MSBuildProjectName);LegalCopyright=(c) 2010-2017 Dmitrii Evdokimov;LegalTrademarks=;OriginalFilename=$(MSBuildProjectName).exe;ProgramID=com.embarcadero.$(MSBuildProjectName);ProductName=$(MSBuildProjectName);ProductVersion=1.2.0.0;Comments=http://dievdo.ru</VerInfo_Keys>
     </PropertyGroup>
     <ItemGroup>
         <DelphiCompile Include="$(MainSource)">

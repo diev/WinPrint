@@ -118,6 +118,11 @@ end;
 begin
   SetCanvas;
   Sign := false;
+
+  PrintLine(Format('[%s]', [FileName]));
+  PrintLine('');
+  PrintLine('');
+
   for I := 0 to Lines.Count - 1 do
   begin
     S := TrimRight(Lines[I]);
