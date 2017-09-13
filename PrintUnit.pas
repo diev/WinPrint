@@ -104,6 +104,7 @@ var
   I: Integer;
   S, KA: string;
   Sign: Boolean;
+  timeDate: TDateTime;
 
 function TryGetKA(const S: string; out KA: string): Boolean;
 var
@@ -119,7 +120,8 @@ begin
   SetCanvas;
   Sign := false;
 
-  PrintLine(Format('[%s]', [FileName]));
+  FileAge(FileName, timeDate);
+  PrintLine(Format('[%s - %s]', [FileName, DateTimeToStr(timeDate)]));
   PrintLine('');
   PrintLine('');
 
