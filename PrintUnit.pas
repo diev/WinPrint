@@ -29,7 +29,7 @@ const
 var
   FileName: string;
   Lines: TStrings;
-  LineHeight, CharWidth, LinesHeight, MaxChars: Integer;
+  LineHeight, CharWidth, LinesHeight, MaxLines, MaxChars: Integer;
   TopY, LineY, LeftX: Integer;
 
 procedure SetCanvas;
@@ -55,6 +55,9 @@ begin
 
     TopY := TopMargin * LineHeight;
     LeftX := LeftMargin * CharWidth;
+
+    // lines per page
+    MaxLines := Trunc((LinesHeight - TopY) / LineHeight);
 
     // move to the first line
     LineY := TopY;
@@ -101,7 +104,7 @@ end;
 
 procedure PrintLines;
 var
-  I: Integer;
+  I, N: Integer;
   S, KA: string;
   Sign: Boolean;
   timeDate: TDateTime;
@@ -121,9 +124,14 @@ begin
   Sign := false;
 
   FileAge(FileName, timeDate);
-  PrintLine(Format('[%s - %s]', [FileName, DateTimeToStr(timeDate)]));
-  PrintLine('');
-  PrintLine('');
+  PrintLine(Format('[%s - %s]',
+    [ExtractFileName(FileName), DateTimeToStr(timeDate)]));
+
+  N := 2;
+  if Lines.Count < (MaxLines - 20) then
+    N := 12;
+  for I := 0 to N - 1 do
+    PrintLine('');
 
   for I := 0 to Lines.Count - 1 do
   begin
