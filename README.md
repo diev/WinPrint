@@ -3,8 +3,8 @@ Windows Print - программа графической печати текс�
 
 ## Build
 
-* Embarcadero Delphi 10.2 Starter - https://www.embarcadero.com/products/delphi
-* Microsoft Build Tools 2015 - https://www.microsoft.com/ru-ru/softmicrosoft/BuildTools2015.aspx
+* Embarcadero Delphi 10.2 Starter - https://www.embarcadero.com/products/delphi/starter (used)
+* Build Tools for Visual Studio 2017 - https://visualstudio.microsoft.com/ru/downloads/ (planned)
 
 ## Version Info
 About this option in RAD Studio:
