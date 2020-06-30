@@ -1,7 +1,7 @@
 ﻿<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
     <PropertyGroup>
         <ProjectGuid>{BE97BC69-A20E-422F-915C-7C00FA06F8EC}</ProjectGuid>
-        <ProjectVersion>18.2</ProjectVersion>
+        <ProjectVersion>18.8</ProjectVersion>
         <FrameworkType>None</FrameworkType>
         <MainSource>WinPrint.dpr</MainSource>
         <Base>True</Base>
@@ -87,8 +87,8 @@
         <VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
         <VerInfo_AutoGenVersion>true</VerInfo_AutoGenVersion>
         <VerInfo_Locale>1049</VerInfo_Locale>
-        <VerInfo_MinorVer>4</VerInfo_MinorVer>
-        <VerInfo_Keys>CompanyName=CIBank;FileDescription=Программа графической печати текстов cp866 и XML.;FileVersion=1.4.0.0;InternalName=$(MSBuildProjectName);LegalCopyright=(c) 2010-2018 Dmitrii Evdokimov;LegalTrademarks=;OriginalFilename=$(MSBuildProjectName).exe;ProgramID=com.embarcadero.$(MSBuildProjectName);ProductName=$(MSBuildProjectName);ProductVersion=1.4.0.0;Comments=http://dievdo.ru</VerInfo_Keys>
+        <VerInfo_MinorVer>5</VerInfo_MinorVer>
+        <VerInfo_Keys>CompanyName=CIBank;FileDescription=Программа графической печати текстов cp866 и XML.;FileVersion=1.5.0.0;InternalName=$(MSBuildProjectName);LegalCopyright=(c) 2010-2020 Dmitrii Evdokimov;LegalTrademarks=;OriginalFilename=$(MSBuildProjectName).exe;ProgramID=com.embarcadero.$(MSBuildProjectName);ProductName=$(MSBuildProjectName);ProductVersion=1.5.0.0;Comments=http://dievdo.ru</VerInfo_Keys>
     </PropertyGroup>
     <ItemGroup>
         <DelphiCompile Include="$(MainSource)">
@@ -117,9 +117,12 @@
                 <Source>
                     <Source Name="MainSource">WinPrint.dpr</Source>
                 </Source>
+                <Excluded_Packages>
+                    <Excluded_Packages Name="$(BDSBIN)\dcloffice2k260.bpl">Microsoft Office 2000 Sample Automation Server Wrapper Components</Excluded_Packages>
+                    <Excluded_Packages Name="$(BDSBIN)\dclofficexp260.bpl">Microsoft Office XP Sample Automation Server Wrapper Components</Excluded_Packages>
+                </Excluded_Packages>
             </Delphi.Personality>
             <Platforms>
-                <Platform value="Linux64">False</Platform>
                 <Platform value="Win32">True</Platform>
             </Platforms>
         </BorlandProject>

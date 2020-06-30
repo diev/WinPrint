@@ -30,24 +30,28 @@ resourcestring
 
 procedure PrintersInfo;
 var
-  i: Integer;
-  s: string;
+  I: Integer;
+  S: string;
+
 begin
   Writeln(Format(PrintersAvailable, [PrintersAvailableDefault]));
   Writeln;
-  for i := 0 to Printer.Printers.Count - 1 do
+
+  for I := 0 to Printer.Printers.Count - 1 do
   begin
-    if i = Printer.PrinterIndex then
-      s := PrintersAvailableDefault
+    if I = Printer.PrinterIndex then
+      S := PrintersAvailableDefault
     else
-      s := PrintersAvailableOthers;
-    Writeln(Format(PrintersAvailableFormat, [i, s, Printer.Printers[i]]));
+      S := PrintersAvailableOthers;
+
+    Writeln(Format(PrintersAvailableFormat, [I, S, Printer.Printers[I]]));
   end;
 end;
 
 procedure SelectPrinter(const S: string);
 var
   I: Integer;
+
 begin
   if TryStrToInt(S, I) then
   begin
@@ -59,8 +63,10 @@ begin
   else
   begin
     I := Printer.Printers.IndexOf(S);
+
     if I = -1 then
       Usage(4, NoSuchPrinterName, [S]);
+
     Printer.PrinterIndex := I;
   end;
 end;
@@ -68,11 +74,14 @@ end;
 procedure Usage(const Err: Integer = 0; const Msg: string = ''); overload;
 var
   FVI: TFileVersionInfo;
+
 begin
   FVI := FileVersionInfo(ParamStr(0));
+
   Writeln(Format('%s v%s - %s', [FVI.ProductName, FVI.FileVersion, FVI.FileDescription]));
   Writeln(FVI.LegalCopyRight);
   Writeln;
+
   Writeln(Usage2);
   Writeln(Usage3);
   Writeln;
@@ -88,6 +97,7 @@ begin
   Writeln;
   Writeln(PressEnterToExit);
   Readln;
+
   Halt(Err);
 end;
 
@@ -97,3 +107,4 @@ begin
 end;
 
 end.
+

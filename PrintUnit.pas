@@ -12,7 +12,7 @@ implementation
 
 uses
   System.SysUtils,
-  System.RegularExpressions,
+  //System.RegularExpressions,
   Vcl.Printers,
   Xml.XMLDoc,
   Xml.XMLIntf;
@@ -34,6 +34,7 @@ var
 
 procedure SetCanvas;
 begin
+
   with Printer do
   begin
     // Orientation := poLandscape;
@@ -67,10 +68,12 @@ end;
 procedure PrintLine(const S: string);
 var
   I, N: Integer;
+
 begin
   // check if a new page required
   with Printer do
   begin
+
     // LineY := Canvas.PenPos.Y;
     if LineY > LinesHeight then
     begin
@@ -82,20 +85,26 @@ begin
     begin
       // I := S.LastIndexOfAny([' ', ',', ';', ':', '-'], 0, MaxChars);
       I := S.Substring(0, MaxChars).LastDelimiter(' ');
+
       if I = -1 then
         I := MaxChars;
+
       Canvas.TextOut(LeftX, LineY, S.Substring(0, I).TrimRight);
+
       // move to next line
       Inc(LineY, LineHeight);
+
       // print the remainder recursively
       N := 0;
       while S.Substring(N, 1) = ' ' do
         Inc(N);
+
       PrintLine(StringOfChar(' ', N) + S.Substring(I).TrimLeft);
     end
     else
     begin
       Canvas.TextOut(LeftX, LineY, S);
+
       // move to next line
       Inc(LineY, LineHeight);
     end;
@@ -105,23 +114,25 @@ end;
 procedure PrintLines;
 var
   I, N: Integer;
-  S, KA: string;
-  Sign: Boolean;
+  S: string;
+  //KA: string;
+  //Sign: Boolean;
   timeDate: TDateTime;
 
-function TryGetKA(const S: string; out KA: string): Boolean;
-var
-  Res: TMatch;
-begin
-  Res := TRegEx.Match(S, '(\d{12})');
-  Result := res.Success;
-  if Result then
-    KA := Res.Value;
-end;
+  //Obsolete with PKCS#7
+  //function TryGetKA(const S: string; out KA: string): Boolean;
+  //var
+  //  Res: TMatch;
+  //begin
+  //  Res := TRegEx.Match(S, '(\d{12})');
+  //  Result := res.Success;
+  //  if Result then
+  //    KA := Res.Value;
+  //end;
 
 begin
   SetCanvas;
-  Sign := false;
+  //Sign := false;
 
   FileAge(FileName, timeDate);
   PrintLine(Format('[%s - %s]',
@@ -130,22 +141,27 @@ begin
   N := 2;
   if Lines.Count < (MaxLines - 20) then
     N := 12;
+
   for I := 0 to N - 1 do
     PrintLine('');
 
   for I := 0 to Lines.Count - 1 do
   begin
     S := TrimRight(Lines[I]);
-    if S.StartsWith('o000000') then
-      Sign := true;
-    if Sign then
-    begin
-      if TryGetKA(S, KA) then
-        PrintLine(Format('[KA %s]', [KA]));
-    end
-    else
-      PrintLine(S);
+
+    //Obsolete with PKCS#7
+    //if S.StartsWith('o000000') then
+    //  Sign := true;
+    //if Sign then
+    //begin
+    //  if TryGetKA(S, KA) then
+    //    PrintLine(Format('[KA %s]', [KA]));
+    //end
+    //else
+
+    PrintLine(S);
   end;
+
   Printer.EndDoc;
 end;
 
@@ -153,6 +169,7 @@ procedure LoadLines(const S: string; const Enc: Integer = 866);
 var
   Doc: IXMLDocument;
   Txt: string;
+
 begin
   FileName := S;
   Lines := TStringList.Create;
@@ -161,6 +178,7 @@ begin
   if Lines[0].StartsWith('<') then //XML
   begin
     Lines.Clear;
+
     Doc := TXMLDocument.Create(nil);
     try
       Doc.LoadFromFile(S);
@@ -170,13 +188,16 @@ begin
     finally
       Doc := nil;
     end;
+
     Txt := FormatXMLData(Txt);
+
     //Txt := StringReplace(Txt, '>', '>' + #13#10, [rfReplaceAll]);
     Txt := StringReplace(Txt, '&quot;', '"', [rfReplaceAll]);
     Txt := StringReplace(Txt, '&apos;', '''', [rfReplaceAll]);
     Txt := StringReplace(Txt, '&amp;', '&', [rfReplaceAll]);
     Txt := StringReplace(Txt, '&lt;', '<', [rfReplaceAll]);
     Txt := StringReplace(Txt, '&gt;', '>', [rfReplaceAll]);
+
     Lines.Text := Txt;
   end;
 end;
