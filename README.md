@@ -5,8 +5,9 @@ Windows Print - программа графической печати текс�
 ## Build
 
  * Embarcadero Delphi 10.3 - https://www.embarcadero.com/products/delphi/starter 
-(this project was separated into the [Delphi] folder)
- * Build Tools for Visual Studio 2019 - https://visualstudio.microsoft.com/downloads/
+(проект версии 1.х вынесен в отдельную папку [Delphi])
+ * Microsoft Visual Studio 2019 - https://visualstudio.microsoft.com/downloads/
+(проект с версии 2.0 ведется на C# для .NET 4.8)
 
 ## Usage
 
