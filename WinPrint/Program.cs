@@ -21,12 +21,33 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
+using Helpers;
+
 namespace WinPrint
 {
     class Program
     {
         static void Main(string[] args)
         {
+            if (args.Length == 0)
+            {
+                Usage();
+            }
+ 
+            #if DEBUG
+            Console.ReadKey();
+            #endif
+            Environment.Exit(0);
+        }
+
+        static void Usage()
+        {
+            Console.WriteLine(App.Banner);
+
+            #if DEBUG
+            Console.ReadKey();
+            #endif
+            Environment.Exit(1);
         }
     }
 }
