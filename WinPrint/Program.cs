@@ -15,13 +15,9 @@
 //------------------------------------------------------------------------------
 #endregion
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
 using Helpers;
+
+using System;
 
 namespace WinPrint
 {
@@ -43,10 +39,16 @@ namespace WinPrint
         static void Usage()
         {
             Console.WriteLine(App.Banner);
+            Console.WriteLine();
+            Console.WriteLine("В качестве параметра требует имя файла для печати.");
+            Console.WriteLine("Вторым параметром может быть указан принтер (номер или имя в cp866).");
+            Console.WriteLine();
+            Console.WriteLine("Программа видит следующие принтеры (* - по умолчанию):");
+            Console.WriteLine();
+            Console.WriteLine(Printer.ListNames());
+            Console.WriteLine("Нажмите Enter для выхода");
+            Console.ReadLine();
 
-            #if DEBUG
-            Console.ReadKey();
-            #endif
             Environment.Exit(1);
         }
     }
