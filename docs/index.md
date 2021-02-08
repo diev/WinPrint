@@ -1,11 +1,11 @@
-# [WinPrint]
+# WinPrint
 
 Windows Print - программа графической печати текстов cp866 и XML.
 
 ## Build
 
  * Embarcadero Delphi 10.3 - https://www.embarcadero.com/products/delphi/starter 
-(this project was separated into the [Delphi] folder)
+(this project was separated into the `Delphi` folder)
  * Build Tools for Visual Studio 2019 - https://visualstudio.microsoft.com/downloads/
 
 ## Usage
@@ -71,6 +71,4 @@ An example looks like a `v1.5.7486.56997`.
 
 Licensed under the [Apache License, Version 2.0].
 
-[WinPrint]: https://diev.github.io/WinPrint/
-[Delphi]: Delphi
-[Apache License, Version 2.0]: LICENSE
+[Apache License, Version 2.0]: http://www.apache.org/licenses/LICENSE-2.0 "LICENSE"
