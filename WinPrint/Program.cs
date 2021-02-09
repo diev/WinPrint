@@ -18,6 +18,8 @@
 using Helpers;
 
 using System;
+using System.IO;
+using System.Text;
 
 namespace WinPrint
 {
@@ -48,6 +50,11 @@ namespace WinPrint
             Console.WriteLine(Printer.ListNames());
             Console.WriteLine("Нажмите Enter для выхода");
             Console.ReadLine();
+
+            #if DEBUG
+            Printer.ReadFile("test.xml", 1251);
+            Printer.PrintPreview();
+            #endif
 
             Environment.Exit(1);
         }
