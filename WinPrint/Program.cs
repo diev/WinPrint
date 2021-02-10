@@ -19,7 +19,6 @@ using Helpers;
 
 using System;
 using System.IO;
-using System.Text;
 
 namespace WinPrint
 {
@@ -27,34 +26,113 @@ namespace WinPrint
     {
         static void Main(string[] args)
         {
-            if (args.Length == 0)
+            int count = args.Length;
+            if (count == 0 || "/? /h -? -h --help".Contains(args[0].ToLower()))
             {
                 Usage();
             }
- 
-            #if DEBUG
-            Console.ReadKey();
-            #endif
+
+            string source = args[0];
+            string printer = count > 1 ? args[1] : "*";
+            string codepage = count > 2 ? args[2] : "cp866";
+
+            Process(source, printer, codepage);
+
             Environment.Exit(0);
+        }
+
+        static void Process(string source, string printer, string codepage)
+        {
+            if (File.Exists(source))
+            {
+                ProcessOne(new FileInfo(source));
+            }
+            else if (Directory.Exists(source))
+            {
+                var dir = new DirectoryInfo(source);
+                foreach (var file in dir.GetFiles())
+                {
+                    ProcessOne(file);
+                }
+            }
+            else if (source.Contains("*") || source.Contains("?"))
+            {
+                string name = ".";
+                string mask = source;
+
+                int pos = source.LastIndexOf(@"\");
+                if (pos == 0) // \*
+                {
+                    mask = source.Substring(pos + 1);
+                }
+                else if (pos == 2) // c:\*
+                {
+                    name = source.Substring(0, pos);
+                    mask = source.Substring(pos + 1);
+                }
+                else if (pos > 2) // c:\path\*
+                {
+                    name = source.Substring(0, pos - 1);
+                    mask = source.Substring(pos + 1);
+                }
+
+                var dir = new DirectoryInfo(name);
+                foreach (var file in dir.GetFiles(mask))
+                {
+                    ProcessOne(file);
+                }
+            }
+            else
+            {
+                Console.WriteLine($"Невозможно найти \"{source}\"");
+                Environment.Exit(2);
+            }
+
+            void ProcessOne(FileInfo file)
+            {
+                if (!Printer.LoadLines(file, codepage))
+                {
+                    Console.WriteLine($"Невозможно загрузить файл \"{file.Name}\"");
+                    Environment.Exit(2);
+                }
+
+                if (printer.Equals("-"))
+                {
+                    Printer.PrintPreview();
+                }
+                else if (printer.Equals("*"))
+                {
+                    if (!Printer.PrintLines())
+                    {
+                        Console.WriteLine($"Невозможно распечатать на принтер");
+                        Environment.Exit(3);
+                    }
+                }
+                else
+                {
+                    if (!Printer.PrintLines(printer))
+                    {
+                        Console.WriteLine($"Невозможно распечатать на принтер \"{printer}\"");
+                        Environment.Exit(3);
+                    }
+                }
+            }
         }
 
         static void Usage()
         {
             Console.WriteLine(App.Banner);
             Console.WriteLine();
-            Console.WriteLine("В качестве параметра требует имя файла для печати.");
-            Console.WriteLine("Вторым параметром может быть указан принтер (номер или имя в cp866).");
+            Console.WriteLine("Параметры (-? для помощи):");
+            Console.WriteLine("  1  - папка/файл/маска");
+            Console.WriteLine(" [2] - принтер ([*], номер или имя; '-' для превью)");
+            Console.WriteLine(" [3] - кодировка ([cp866], windows-1251, utf-8, ...)");
             Console.WriteLine();
             Console.WriteLine("Программа видит следующие принтеры (* - по умолчанию):");
             Console.WriteLine();
             Console.WriteLine(Printer.ListNames());
             Console.WriteLine("Нажмите Enter для выхода");
             Console.ReadLine();
-
-            #if DEBUG
-            Printer.ReadFile("test.xml", 1251);
-            Printer.PrintPreview();
-            #endif
 
             Environment.Exit(1);
         }

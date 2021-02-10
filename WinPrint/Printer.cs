@@ -15,7 +15,6 @@
 //------------------------------------------------------------------------------
 #endregion
 
-using System;
 using System.Drawing;
 using System.Drawing.Printing;
 using System.IO;
@@ -28,37 +27,43 @@ namespace Helpers
     public static class Printer
     {
         public static string FontName = "Times New Roman"; // "Arial"; // "Courier New";
-        public static byte CharSet = 204; // Russian
         public static float FontSize = 10.0F;
         public static float LineGap = 5.0F;
-        public static bool NewLineOnAttributes = true;
 
-        public static int MarginLeft = 100;
-        public static int MarginRight = 40;
-        public static int MarginTop = 40;
-        public static int MarginBottom = 40;
+        public static bool NewLineOnAttributes = false; // true;
+        public static bool DrawNumbers = false; // true;
+        public static bool DrawZones = false; // true;
 
-        private static string DocumentName;
-        private static string DocumentHeader;
+        public static int MarginLeft = 100; // 100
+        public static int MarginRight = 50; // 40
+        public static int MarginTop = 50; // 40
+        public static int MarginBottom = 50; // 40
 
-        private static string[] Lines;
-        private static int LineNum = 0;
-        private static bool LineContinued = false;
-        private static int PageNum = 0;
+        //
+        private static string _documentName;
+        private static string _documentHeader;
+
+        private static string[] _textLines;
+        private static bool _xmlMode;
+
+        private static Font _font;
+        private static float _fontHeight;
+
+        private static int _currentPageNumber;
+        private static int _currentLineNumber;
+        private static bool _currentLineContinued;
 
         public static string ListNames()
         {
+            var printDoc = new PrintDocument();
+            string defaultName = printDoc.PrinterSettings.PrinterName;
+
             var names = new StringBuilder();
-            var doc = new PrintDocument();
-            string defaultName = doc.PrinterSettings.PrinterName;
-            int count = PrinterSettings.InstalledPrinters.Count;
-
-            for (int i = 0; i < count; i++)
-            {
-                string name = PrinterSettings.InstalledPrinters[i];
+            int i = 0;
+            foreach (string name in PrinterSettings.InstalledPrinters)
+            { 
                 string d = name.Equals(defaultName) ? "*" : " ";
-
-                names.AppendLine($"{i,3}{d} \"{name}\"");
+                names.AppendLine($"{i++,3}{d} \"{name}\"");
             }
 
             return names.ToString();
@@ -77,37 +82,31 @@ namespace Helpers
             return null;
         }
 
-        public static void ReadFile(string fileName, int codepage = 0)
+        public static bool LoadLines(FileInfo file, string codepage)
         {
-            var file = new FileInfo(fileName);
-            if (!file.Exists)
-            {
-                return;
-            }
-
-            DocumentName = $"{App.Name} - {file.Name}";
-            DocumentHeader = $"[{file.Name} - {file.LastWriteTime}]";
+            _documentName = $"{App.Name} - {file.Name}";
+            _documentHeader = $"[{file.Name} - {file.LastWriteTime}]";
 
             if (file.Extension.ToLower().Equals(".xml"))
             {
-                ReadFileAsXml(fileName);
+                ReadFileAsXml(file.FullName);
             }
             else
             {
-                Lines = File.ReadAllLines(fileName, codepage == 0 ?
-                    Encoding.UTF8 :
-                    Encoding.GetEncoding(codepage));
+                _textLines = File.ReadAllLines(file.FullName, Encoding.GetEncoding(codepage));
 
-                if (Lines[0].StartsWith("<"))
+                if (_textLines[0].StartsWith("<"))
                 {
-                    ReadFileAsXml(fileName);
+                    ReadFileAsXml(file.FullName);
                 }
             }
 
+            return _textLines.Length > 0;
+
             void ReadFileAsXml(string filename)
             {
-                var doc = new XmlDocument();
-                doc.Load(filename); //ex: File not found!
+                var xml = new XmlDocument();
+                xml.Load(filename);
 
                 var lines = new StringBuilder();
                 var settings = new XmlWriterSettings
@@ -121,69 +120,118 @@ namespace Helpers
 
                 using (var writer = XmlWriter.Create(lines, settings))
                 {
-                    doc.Save(writer);
+                    xml.Save(writer);
                 }
 
                 lines.Replace("&quot;", "\"")
                     .Replace("&apos;", "'").Replace("&amp;", "&")
                     .Replace("&lt;", "<").Replace("&gt;", ">");
 
-                Lines = lines.ToString().Split('\n');
+                _textLines = lines.ToString().Split('\n');
+                _xmlMode = true;
             }
         }
 
         public static void PrintPreview()
         {
-            var doc = new PrintDocument
+            var printDoc = new PrintDocument
             {
-                DocumentName = DocumentName
+                DocumentName = _documentName
             };
-            doc.PrintPage += new PrintPageEventHandler(PrintDoc_PrintPage);
-            doc.DefaultPageSettings.Margins = new Margins(MarginLeft, MarginRight, MarginTop, MarginBottom);
+
+            printDoc.BeginPrint += PrintDoc_BeginPrint;
+            printDoc.PrintPage += PrintDoc_PrintPage;
+            printDoc.EndPrint += PrintDoc_EndPrint;
+
+            printDoc.DefaultPageSettings.Margins = new Margins(
+                MarginLeft,
+                MarginRight,
+                MarginTop,
+                MarginBottom);
 
             PrintPreviewDialog preview = new PrintPreviewDialog
             {
-                Document = doc,
+                Document = printDoc,
                 WindowState = FormWindowState.Maximized
             };
+
             preview.ShowDialog();
         }
 
-        public static void Printing(string printer)
+        public static bool PrintLines(string printer = null)
         {
-            var doc = new PrintDocument
+            int count = PrinterSettings.InstalledPrinters.Count;
+            if (count == 0)
             {
-                DocumentName = DocumentName
-            };
-            doc.PrintPage += new PrintPageEventHandler(PrintDoc_PrintPage);
-            doc.PrinterSettings.PrinterName = printer;
-            doc.DefaultPageSettings.Margins = new Margins(MarginLeft, MarginRight, MarginTop, MarginBottom);
+                return false;
+            }
 
-            if (doc.PrinterSettings.IsValid)
+            var printDoc = new PrintDocument
             {
-                doc.Print();
-            }
-            else
+                DocumentName = _documentName
+            };
+
+            if (printer != null)
             {
-                Console.WriteLine("Printer is invalid.");
+                if (int.TryParse(printer, out int num)) // int number
+                {
+                    if (num >= 0 && num < count)
+                    {
+                        printDoc.PrinterSettings.PrinterName = PrinterSettings.InstalledPrinters[num];
+                    }
+                }
+                else // string name
+                {
+                    printDoc.PrinterSettings.PrinterName = printer;
+                }
             }
+
+            int hardX = (int)printDoc.DefaultPageSettings.HardMarginX;
+            int hardY = (int)printDoc.DefaultPageSettings.HardMarginY;
+
+            printDoc.DefaultPageSettings.Margins = new Margins(
+                MarginLeft - hardX,
+                MarginRight + hardX, 
+                MarginTop - hardY,
+                MarginBottom + hardY);
+
+            if (!printDoc.PrinterSettings.IsValid)
+            {
+                return false;
+            }
+
+            printDoc.BeginPrint += PrintDoc_BeginPrint;
+            printDoc.PrintPage += PrintDoc_PrintPage;
+            printDoc.EndPrint += PrintDoc_EndPrint;
+
+            printDoc.Print();
+
+            return true;
+        }
+
+        private static void PrintDoc_BeginPrint(object sender, PrintEventArgs e)
+        {
+            const byte gdiCharSet = 204; // Russian
+
+            _font = new Font(new FontFamily(FontName), FontSize, FontStyle.Regular, GraphicsUnit.Point, gdiCharSet);
+        }
+
+        private static void PrintDoc_EndPrint(object sender, PrintEventArgs e)
+        {
+            _font.Dispose();
         }
 
         private static void PrintDoc_PrintPage(object sender, PrintPageEventArgs e)
         {
-            var fontFamily = new FontFamily(FontName);
-            var font = new Font(fontFamily, FontSize, FontStyle.Regular, GraphicsUnit.Point, CharSet);
-            float fontHeight = font.GetHeight(e.Graphics);
+            _currentPageNumber++;
+            _fontHeight = _font.GetHeight(e.Graphics);
 
             DrawPageNumber();
             float yPos = DrawPageHeader();
 
-            if (Lines == null)
-            {
-                return;
-            }
+            if (DrawZones) DrawZone(e.MarginBounds.X, e.MarginBounds.Y, e.MarginBounds.Width, e.MarginBounds.Height); //DEBUG
 
-            while (LineNum < Lines.Length)
+            while (_currentLineNumber < _textLines.Length)
             {
                 if (yPos >= e.MarginBounds.Bottom)
                 {
@@ -191,27 +239,35 @@ namespace Helpers
                     break;
                 }
 
-                string text1 = Lines[LineNum];
-                string text = text1.TrimStart(' ');
-
+                string text = _textLines[_currentLineNumber];
                 if (text.Length == 0)
                 {
-                    DrawLineNumber();
+                    if (DrawNumbers) DrawLineNumber();
 
-                    yPos += fontHeight; // + LineGap;
-                    LineNum++;
+                    yPos += _fontHeight; // + LineGap;
+                    _currentLineNumber++;
                     continue;
                 }
 
-                float indent = 0.0F;
-                if (!LineContinued)
+                float x = e.MarginBounds.X;
+                float width = e.MarginBounds.Width;
+
+                if (_xmlMode)
                 {
-                    indent = (text1.Length - text.Length) * 20.0F;
+                    string txt = text.TrimStart(' ');
+
+                    if (!_currentLineContinued)
+                    {
+                        float indent = (text.Length - txt.Length) * 20.0F;
+                        x += indent;
+                        width -= indent;
+                    }
+
+                    text = txt;
                 }
 
-                var place = new RectangleF(e.MarginBounds.X + indent, yPos, 
-                    e.MarginBounds.Width - indent, e.MarginBounds.Bottom - yPos);
-                var textSize = e.Graphics.MeasureString(text, font, place.Size, StringFormat.GenericTypographic,
+                var place = new RectangleF(x, yPos, width, e.MarginBounds.Bottom - yPos);
+                var textSize = e.Graphics.MeasureString(text, _font, place.Size, StringFormat.GenericTypographic,
                     out int charsFitted, out int linesFilled);
 
                 if (linesFilled == 0) // No space for new lines
@@ -222,63 +278,67 @@ namespace Helpers
 
                 if (charsFitted < text.Length)
                 {
-                    DrawLineNumber();
+                    if (DrawNumbers) DrawLineNumber();
+
                     DrawText(text, place);
 
-                    Lines[LineNum] = text.Substring(charsFitted);
-                    LineContinued = true;
+                    _textLines[_currentLineNumber] = text.Substring(charsFitted);
+                    _currentLineContinued = true;
+
                     e.HasMorePages = true;
                     break;
                 }
 
-                DrawLineNumber();
+                if (DrawNumbers) DrawLineNumber();
+
                 DrawText(text, place);
                 yPos += textSize.Height + LineGap;
 
-                LineNum++;
-                LineContinued = false;
+                _currentLineNumber++;
+                _currentLineContinued = false;
             }
 
             void DrawText(string text, RectangleF place)
             {
-                e.Graphics.DrawString(text, font, Brushes.Black, place, StringFormat.GenericTypographic);
+                e.Graphics.DrawString(text, _font, Brushes.Black, place, StringFormat.GenericTypographic);
             }
 
             float DrawPageHeader()
             {
-                string txt = DocumentHeader;
+                string txt = _documentHeader;
 
                 var plc = new RectangleF(e.MarginBounds.Left, e.MarginBounds.Top,
                     e.MarginBounds.Width * 0.8F, e.MarginBounds.Bottom);
-                var txtSize = e.Graphics.MeasureString(txt, font, plc.Size, StringFormat.GenericTypographic);
-                e.Graphics.DrawString(txt, font, Brushes.DarkGray, plc, StringFormat.GenericTypographic);
+                var txtSize = e.Graphics.MeasureString(txt, _font, plc.Size, StringFormat.GenericTypographic);
+                e.Graphics.DrawString(txt, _font, Brushes.DarkGray, plc, StringFormat.GenericTypographic);
 
-                return e.MarginBounds.Top + txtSize.Height + fontHeight + LineGap; // next yPos
+                return e.MarginBounds.Top + txtSize.Height + _fontHeight + LineGap; // next yPos
             }
 
             void DrawPageNumber()
             {
-                string txt = $"{++PageNum}";
-                var txtSize = e.Graphics.MeasureString(txt, font);
+                string txt = $"{_currentPageNumber}";
+                var txtSize = e.Graphics.MeasureString(txt, _font);
 
-                e.Graphics.DrawString(txt, font, Brushes.DarkGray,
-                    e.MarginBounds.Right - txtSize.Width,
-                    e.MarginBounds.Top,
+                e.Graphics.DrawString(txt, _font, Brushes.DarkGray, e.MarginBounds.Right - txtSize.Width, e.MarginBounds.Top,
                     StringFormat.GenericTypographic);
             }
 
             void DrawLineNumber()
             {
-                if (!LineContinued)
+                if (!_currentLineContinued)
                 {
-                    string txt = $"{LineNum + 1}: ";
-                    var txtSize = e.Graphics.MeasureString(txt, font);
+                    string txt = $"{_currentLineNumber + 1}: ";
+                    var txtSize = e.Graphics.MeasureString(txt, _font);
 
-                    e.Graphics.DrawString(txt, font, Brushes.LightGray, 
-                        e.MarginBounds.Left - txtSize.Width,
-                        yPos,
+                    e.Graphics.DrawString(txt, _font, Brushes.LightGray, e.MarginBounds.Left - txtSize.Width, yPos,
                         StringFormat.GenericTypographic);
                 }
+            }
+
+            void DrawZone(float x, float y, float width, float height)
+            {
+                e.Graphics.DrawRectangle(new Pen(Brushes.LightGray), x, y, width, height);
             }
         }
     }
