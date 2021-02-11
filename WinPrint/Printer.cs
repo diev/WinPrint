@@ -34,10 +34,10 @@ namespace Helpers
         public static bool DrawNumbers = false; // true;
         public static bool DrawZones = false; // true;
 
-        public static int MarginLeft = 100; // 100
-        public static int MarginRight = 50; // 40
-        public static int MarginTop = 50; // 40
-        public static int MarginBottom = 50; // 40
+        public static int MarginLeft = 100; // 100 = 1"
+        public static int MarginRight = 50;
+        public static int MarginTop = 50;
+        public static int MarginBottom = 50;
 
         //
         private static string _documentName;
@@ -214,6 +214,10 @@ namespace Helpers
             const byte gdiCharSet = 204; // Russian
 
             _font = new Font(new FontFamily(FontName), FontSize, FontStyle.Regular, GraphicsUnit.Point, gdiCharSet);
+
+            _currentPageNumber = 0;
+            _currentLineNumber = 0;
+            _currentLineContinued = false;
         }
 
         private static void PrintDoc_EndPrint(object sender, PrintEventArgs e)
